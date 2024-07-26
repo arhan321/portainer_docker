@@ -1,17 +1,33 @@
-version: '3'
+version: "3.4"
 
 services:
-  portainer:
-    image: portainer/portainer
-    container_name: portainer
-    restart: always
+  apache:
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - 8000:8000
-      - 9443:9443
+      - "89:89"
+      - "443:443"
+    volumes:
+      - ./apache-config.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
+      - ./certs:/usr/local/apache2/certs
+    networks:
+      - homeserver
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    ports:
+      - "8000:8000"
+      - "9000:9000"
+      - "9443:9443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
+    networks:
+      - homeserver
+  
+networks:
+  homeserver:
 
 volumes:
   portainer_data:
-     name: portainer_data
